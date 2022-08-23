@@ -1,19 +1,7 @@
-/**
-=========================================================
-* Material Kit 2 React - v2.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-kit-react
-* Copyright 2021 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
- =========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-*/
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { GoogleLogin } from "react-google-login";
+import { gapi } from "gapi-script";
+import GoogleIcon from "@mui/icons-material/Google";
 
 // react-router-dom components
 import { Link } from "react-router-dom";
@@ -22,47 +10,53 @@ import { Link } from "react-router-dom";
 import Card from "@mui/material/Card";
 import Switch from "@mui/material/Switch";
 import Grid from "@mui/material/Grid";
-import MuiLink from "@mui/material/Link";
-
-// @mui icons
-import FacebookIcon from "@mui/icons-material/Facebook";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import GoogleIcon from "@mui/icons-material/Google";
 
 // Material Kit 2 React components
 import MKBox from "components/MKBox";
 import MKTypography from "components/MKTypography";
 import MKInput from "components/MKInput";
 import MKButton from "components/MKButton";
+import MKAvatar from "components/MKAvatar";
 
 // Material Kit 2 React example components
-import DefaultNavbar from "examples/Navbars/DefaultNavbar";
+// import DefaultNavbar from "examples/Navbars/DefaultNavbar";
 import SimpleFooter from "examples/Footers/SimpleFooter";
 
 // Material Kit 2 React page layout routes
-import routes from "routes";
+// import routes from "routes";
 
 // Images
-import bgImage from "assets/images/bg-sign-in-basic.jpeg";
+import bgImage from "assets/images/bg-fundo.jpg";
+import logo from "../../../assets/images/logos/gray-logos/logo-bompalpite.png";
 
+const CLIENT_ID = "243631319046-7kso3focrirdb135ua5o4j590ldhn74b.apps.googleusercontent.com";
 function SignInBasic() {
   const [rememberMe, setRememberMe] = useState(false);
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
+  useEffect(() => {
+    function start() {
+      gapi.client.init({
+        clientId: process.env.REACT_PUBLIC_GOOGLE_CLIENT_ID,
+        scope: "email",
+      });
+      // const request = gapi.server.plus.people.get({ userId: "102147307918874735077" });
+      // console.log(request);
+    }
+
+    gapi.load("client:auth2", start);
+  }, []);
+
+  const onSuccess = (response) => {
+    console.log("[LOGIN SUCCESS] currentUser:", response.profileObj);
+  };
+
+  const onFailure = (response) => {
+    console.log("[LOGIN FAILED] response:", response);
+  };
   return (
     <>
-      <DefaultNavbar
-        routes={routes}
-        action={{
-          type: "external",
-          route: "https://www.creative-tim.com/product/material-kit-react",
-          label: "free download",
-          color: "info",
-        }}
-        transparent
-        light
-      />
       <MKBox
         position="absolute"
         top={0}
@@ -78,7 +72,8 @@ function SignInBasic() {
             )}, url(${bgImage})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
+          display: "grid",
+          placeItems: "center",
         }}
       />
       <MKBox px={1} width="100%" height="100vh" mx="auto" position="relative" zIndex={2}>
@@ -86,44 +81,31 @@ function SignInBasic() {
           <Grid item xs={11} sm={9} md={5} lg={4} xl={3}>
             <Card>
               <MKBox
+                position="relative"
                 variant="gradient"
-                bgColor="info"
+                bgColor="success"
                 borderRadius="lg"
-                coloredShadow="info"
+                coloredShadow="success"
                 mx={2}
                 mt={-3}
                 p={2}
                 mb={1}
                 textAlign="center"
               >
-                <MKTypography variant="h4" fontWeight="medium" color="white" mt={1}>
-                  Sign in
-                </MKTypography>
-                <Grid container spacing={3} justifyContent="center" sx={{ mt: 1, mb: 2 }}>
-                  <Grid item xs={2}>
-                    <MKTypography component={MuiLink} href="#" variant="body1" color="white">
-                      <FacebookIcon color="inherit" />
-                    </MKTypography>
-                  </Grid>
-                  <Grid item xs={2}>
-                    <MKTypography component={MuiLink} href="#" variant="body1" color="white">
-                      <GitHubIcon color="inherit" />
-                    </MKTypography>
-                  </Grid>
-                  <Grid item xs={2}>
-                    <MKTypography component={MuiLink} href="#" variant="body1" color="white">
-                      <GoogleIcon color="inherit" />
-                    </MKTypography>
-                  </Grid>
+                <Grid flexDirection="column" alignContent="center" container>
+                  <MKAvatar src={logo} alt="Avatar" size="xxl" variant="square" />
+                  <MKTypography variant="h5" fontWeight="medium" color="white" mt={1}>
+                    Bom Palpite
+                  </MKTypography>
                 </Grid>
               </MKBox>
               <MKBox pt={4} pb={3} px={3}>
                 <MKBox component="form" role="form">
                   <MKBox mb={2}>
-                    <MKInput type="email" label="Email" fullWidth />
+                    <MKInput type="email" label="E-mail" fullWidth />
                   </MKBox>
                   <MKBox mb={2}>
-                    <MKInput type="password" label="Password" fullWidth />
+                    <MKInput type="password" label="Senha" fullWidth />
                   </MKBox>
                   <MKBox display="flex" alignItems="center" ml={-1}>
                     <Switch checked={rememberMe} onChange={handleSetRememberMe} />
@@ -134,17 +116,38 @@ function SignInBasic() {
                       onClick={handleSetRememberMe}
                       sx={{ cursor: "pointer", userSelect: "none", ml: -1 }}
                     >
-                      &nbsp;&nbsp;Remember me
+                      &nbsp;&nbsp;Lembrar-me
                     </MKTypography>
                   </MKBox>
                   <MKBox mt={4} mb={1}>
-                    <MKButton variant="gradient" color="info" fullWidth>
-                      sign in
+                    <MKButton variant="gradient" color="success" fullWidth>
+                      Entrar
                     </MKButton>
+                  </MKBox>
+                  <MKBox mt={1} mb={1}>
+                    <GoogleLogin
+                      clientId={CLIENT_ID}
+                      render={(renderProps) => (
+                        <MKButton
+                          onClick={renderProps.onClick}
+                          disabled={renderProps.disabled}
+                          variant="gradient"
+                          color="light"
+                          fullWidth
+                        >
+                          <GoogleIcon color="secondary" />
+                          &nbsp;&nbsp;Entrar com Google
+                        </MKButton>
+                      )}
+                      buttonText="Entrar com Google"
+                      onSuccess={onSuccess}
+                      onFailure={onFailure}
+                      cookiePolicy="single_host_origin"
+                    />
                   </MKBox>
                   <MKBox mt={3} mb={1} textAlign="center">
                     <MKTypography variant="button" color="text">
-                      Don&apos;t have an account?{" "}
+                      Não tem uma conta?{" "}
                       <MKTypography
                         component={Link}
                         to="/authentication/sign-up/cover"
@@ -153,7 +156,7 @@ function SignInBasic() {
                         fontWeight="medium"
                         textGradient
                       >
-                        Sign up
+                        Cadastre-se
                       </MKTypography>
                     </MKTypography>
                   </MKBox>
@@ -163,7 +166,7 @@ function SignInBasic() {
           </Grid>
         </Grid>
       </MKBox>
-      <MKBox width="100%" position="absolute" zIndex={2} bottom="1.625rem">
+      <MKBox width="100%" position="relative" zIndex={2} bottom="1.625rem">
         <SimpleFooter light />
       </MKBox>
     </>
